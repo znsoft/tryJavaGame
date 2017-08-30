@@ -6,21 +6,18 @@ import java.util.ArrayList;
  * Created by es.zheludkov on 30.08.2017.
  */
 public class zCell {
-    private Position2D pos;
-    private float forceVecX,forceVecY;
-    private float entropyFactor;
-
-    public boolean isAlive;
-    public boolean isAfrozen;
+    private final Unit2D pos;
 
     private ArrayList<zCell> neibor;
-    public zCell(int x,int y,float entropyFactor){
-        pos = new Position2D(x,y);
-        this.entropyFactor = entropyFactor;
-        forceVecX = 0.0f;
-        forceVecY = 0.0f;
+    public zCell(int x,int y,double entropyFactor){
+        pos = new Unit2D(x,y,entropyFactor);
     }
 
+    public double getDistanceTo(Position2D point){
+        return pos.getDistanceTo(point);
+    }
 
-
+    public double getSqrDistanceTo(Position2D point){
+        return pos.getSqrDistanceTo(point);
+    }
 }

@@ -52,8 +52,6 @@ public class Position2D {
         return relativeAngleTo;
     }
 
-
-
     public double getDistanceTo(double x, double y) {
         return StrictMath.hypot(this.x - x, this.y - y);
     }
@@ -62,6 +60,14 @@ public class Position2D {
         return getDistanceTo(point.x, point.y);
     }
 
+    public double getSqrDistanceTo(double x, double y){
+        double xx = this.x - x;
+        double yy = this.y - y;
+        return xx*xx+yy*yy;
+    }
 
+    public double getSqrDistanceTo(Position2D point){
+        return getSqrDistanceTo(point.x, point.y);
+    }
 
-}
+    }
