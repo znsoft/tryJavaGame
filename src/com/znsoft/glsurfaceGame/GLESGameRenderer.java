@@ -1,5 +1,6 @@
 package com.znsoft.glsurfaceGame;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -9,6 +10,7 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,16 +25,109 @@ class GLESGameRenderer implements GLSurfaceView.Renderer {
 	FloatBuffer quadVerts;
 	int glBuf;
 	private final float mTouchPositions[] = new float[40];
+    private znResourceManager ResManager;
 
 	public GLESGameRenderer(Context context) {
 		mContext = context;
+        ResManager = new znResourceManager(context);
 		mTriangleVertices = ByteBuffer
 				.allocateDirect(mTriangleVerticesData.length * FLOAT_SIZE_BYTES)
 				.order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mTriangleVertices.put(mTriangleVerticesData).position(0);
 	}
 
-	// /
+    ///
+    // Create a 2D texture image
+    //
+    private int createTexture2D( )
+    {
+        // Texture object handle
+        int[] textureId = new int[1];
+        int    width = 256,
+                height = 256;
+//	        ByteBuffer pixels;
+        mTextureID = textureId[0];
+        //pixels = genCheckImage( width, height, 64 );
+
+        // Generate a texture object
+        GLES20.glGenTextures ( 1, textureId, 0 );
+
+        // Bind the texture object
+        GLES20.glBindTexture ( GLES20.GL_TEXTURE_2D, mTextureID );
+        AssignBitmap(R.raw.dns,GLES20.GL_LINEAR);
+        return textureId[0];
+    }
+    ///
+    //  Generate an RGB8 checkerboard image
+    //
+    private ByteBuffer genCheckImage( int width, int height, int checkSize )
+    {
+        int x,xMagnetic,yMagnetic,
+                y,i;
+        int Balls = 17;
+        double Ambient = 900;
+        int[] xCenters = new int[100];
+        int[] yCenters = new int[100];
+        int[] zCenters = new int[100];
+        float[] pCenters = new float[100];
+        for(i=0;i<Balls;i++){
+            xCenters[i]= (int) Math.round(Math.random()*width);
+            yCenters[i]= (int) Math.round(Math.random()*height);
+            zCenters[i]= (int) Math.round(Math.random()*255);
+            pCenters[i]= (float) (1.0+Math.random()*3.0);
+
+        }
+        byte[] pixels = new byte[width * height * 3];
+        double q = 0,z;
+        for ( y = 0; y < height; y++ )
+            for ( x = 0; x < width; x++ )
+            {
+
+                byte rColor = 0;
+                byte bColor = 0;
+                byte gColor = 0;
+                z = 0.0;
+                for(i=0;i<Balls;i++){
+                    xMagnetic = xCenters[i] - x;
+                    yMagnetic = yCenters[i] - y;
+                    //q = Math.pow(Math.pow(xMagnetic, pCenters[i])+Math.pow(yMagnetic, pCenters[i]),1/pCenters[i]);
+                    //           	q = Math.sqrt((double)(xMagnetic *xMagnetic+yMagnetic*yMagnetic));
+                    q = Math.sqrt((double)(xMagnetic *xMagnetic+yMagnetic*yMagnetic+zCenters[i]));
+                    if(q != 0.0 )z =z + 1.0/q; else z = z+1;
+                }
+                int r =(int) Math.round(Ambient * z);
+                if(r>250)r=250;
+                rColor = (byte) (r);
+                bColor =  rColor;
+                gColor =  rColor;
+
+
+//	                if ( ( x / checkSize ) % 2 == 0 )
+//	                {
+//	                    bColor = (byte)(rColor * ( 1 - ( ( y / checkSize ) % 2 ) ));
+//	                }
+//	                else
+//	                {
+//	                    bColor = (byte)(127 * ( ( y / checkSize ) % 2 ));
+//	                }
+
+
+
+
+                pixels[(y * height + x) * 3] = rColor;
+                pixels[(y * height + x) * 3 + 1] = gColor;//(byte) (bColor * rColor * y * x);
+                pixels[(y * height + x) * 3 + 2] = bColor;
+            }
+
+//	        for ( y = 0; y < height; y++ )
+//	            for ( x = 0; x < width; x++ )
+//	            {
+
+        ByteBuffer result = ByteBuffer.allocateDirect(width*height*3);
+        result.put(pixels).position(0);
+        return result;
+    }
+    // / /
 	// Generate an RGB8 checkerboard image
 	//
 	private ByteBuffer genSurfaceImage(int width, int height, int checkSize) {
@@ -250,19 +345,8 @@ class GLESGameRenderer implements GLSurfaceView.Renderer {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId[1]);
 		mTextureID2 = textureId[1];
 		//UseTexture2D(genSurfaceImage(256, 256, 64),256,256);
-		 InputStream is = mContext.getResources().openRawResource(R.raw.lev1);
-		 Bitmap bitmap;
-		 try {
-		 bitmap = BitmapFactory.decodeStream(is);
-		 } finally {
-		 try {
-		 is.close();
-		 } catch(IOException e) {
-		 // Ignore.
-		 }
-		 }
-		 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-		 bitmap.recycle();
+		 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, ResManager.loadBitmapResource(R.raw.lev1), 0);
+         ResManager.recycleBitmap();
 		 GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
 		    GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
 		    GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
@@ -292,7 +376,6 @@ class GLESGameRenderer implements GLSurfaceView.Renderer {
 
 		return 0;
 	}
-	
 
 	private int loadShader(int shaderType, String source) {
 		int shader = GLES20.glCreateShader(shaderType);
@@ -340,6 +423,28 @@ class GLESGameRenderer implements GLSurfaceView.Renderer {
 		}
 		return program;
 	}
+
+
+	private int loadProgram(String vs, String fs) throws Exception {
+		int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vs);
+		int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fs);
+		int program = GLES20.glCreateProgram();
+		if (program != 0) {
+			GLES20.glAttachShader(program, vertexShader);
+			GLES20.glAttachShader(program, fragmentShader);
+			GLES20.glLinkProgram(program);
+			int[] linkStatus = new int[1];
+			GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS,
+					linkStatus, 0);
+			if (linkStatus[0] != GLES20.GL_TRUE) {
+				String error = GLES20.glGetProgramInfoLog(program);
+				GLES20.glDeleteProgram(program);
+				throw new Exception(error);
+			}
+		}
+		return program;
+	}
+
 
 	private void checkGlError(String op) {
 		int error;
@@ -403,7 +508,7 @@ class GLESGameRenderer implements GLSurfaceView.Renderer {
 			+ "v = v+ (h-l);\n"
 	//		+ "}\n"
 			+ " //texture2D(mTexture, xy )   \n"
-			+ "  gl_FragColor = texture2D(sTexture, xy ) - v ;\n"
+			+ "  gl_FragColor = l;//texture2D(sTexture, xy );// - v ;\n"
 			+ "             }";
 	/*
 			+ "  //gl_FragColor = gl_FragColor + texture2D(mTexture, xy );\n"

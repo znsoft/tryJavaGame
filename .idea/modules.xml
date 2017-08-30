@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/tryautogame.iml" filepath="$PROJECT_DIR$/.idea/tryautogame.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GLAndroidGameTest.iml" filepath="$PROJECT_DIR$/GLAndroidGameTest.iml" />
     </modules>
   </component>
 </project>
