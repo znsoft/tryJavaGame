@@ -13,9 +13,10 @@ import java.io.InputStream;
  */
 public class znResourceManager {
     private Context mContext;
-    public znResourceManager(Context context){
+
+    public znResourceManager(Context context) {
         mContext = context;
-   }
+    }
 
     public String loadStringResource(int resourceId) throws Exception {
         InputStream is = mContext.getResources().openRawResource(resourceId);
@@ -30,7 +31,7 @@ public class znResourceManager {
 
     private Bitmap bitmap;
 
-    public Bitmap loadBitmapResource(int resourceId){
+    public Bitmap loadBitmapResource(int resourceId) {
         InputStream is = mContext.getResources().openRawResource(R.raw.lev1);
 
         try {
@@ -38,14 +39,14 @@ public class znResourceManager {
         } finally {
             try {
                 is.close();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 // Ignore.
             }
         }
-      return bitmap;
+        return bitmap;
     }
 
-    public void recycleBitmap(){
+    public void recycleBitmap() {
         bitmap.recycle();
     }
 

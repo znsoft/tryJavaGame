@@ -18,9 +18,6 @@ package com.znsoft.glsurfaceGame;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.WindowManager;
-
-import java.io.File;
 
 
 public class GLGameActivity extends Activity {

@@ -19,8 +19,6 @@ package com.znsoft.glsurfaceGame;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
-import android.opengl.GLES20;
-
 class GLGameView extends GLSurfaceView {
     public GLGameView(Context context) {
         super(context);

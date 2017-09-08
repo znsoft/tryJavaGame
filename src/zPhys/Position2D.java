@@ -5,47 +5,79 @@ package zPhys;
  */
 public class Position2D {
     private Vector2 pos;
-    private int x,y;
+    public Vector2 prevpos;
+    private int x, y;
 
     public Position2D(Vector2 vec) {
         pos = new Vector2(vec);
-        this.x = (int)vec.x;
-        this.y = (int)vec.y;
+        prevpos = new Vector2(pos);
+        this.x = (int) vec.x;
+        this.y = (int) vec.y;
     }
 
     public Position2D(double x, double y) {
-        pos = new Vector2(x,y);
-        this.x = (int)x;
-        this.y = (int)y;
+        pos = new Vector2(x, y);
+        prevpos = new Vector2(pos);
+        this.x = (int) x;
+        this.y = (int) y;
     }
 
     public Position2D(int x, int y) {
         this.x = x;
         this.y = y;
-        pos = new Vector2((double)x,(double)y);
+        pos = new Vector2((double) x, (double) y);
+        prevpos = new Vector2(pos);
     }
+
 
     public Position2D SetXY(int x, int y) {
+        prevpos = new Vector2(pos);
         this.x = x;
         this.y = y;
-        pos.x = (double)x;
-        pos.y = (double)y;
+        pos.x = (double) x;
+        pos.y = (double) y;
         return this;
     }
 
-    public Position2D SetXY(double x,double y){
-
+    public Position2D SetXY(double x, double y) {
+        prevpos = new Vector2(pos);
         pos.x = x;
         pos.y = y;
-        this.x = (int)x;
-        this.y = (int)y;
+        this.x = (int) x;
+        this.y = (int) y;
         return this;
     }
 
-    public Position2D Add(Vector2 vec){
+    public Position2D SetXY(Vector2 vec) {
+        return SetXY(vec.x, vec.y);
+    }
+
+    public Position2D SetX(double x) {
+        prevpos.x = pos.x;
+        pos.x = x;
+        this.x = (int) x;
+        return this;
+    }
+
+
+    public Position2D Add(Vector2 vec) {
+        //prevpos = new Vector2(pos); // Убрал для уменьшения влияния на точку т.к в передвижении точки не используется а лишь в перемещении связи
         pos.Add(vec);
-        this.x = (int)pos.x;
-        this.y = (int)pos.y;
+        this.x = (int) pos.x;
+        this.y = (int) pos.y;
+        return this;
+    }
+
+    public Position2D Sub(Vector2 vec) {
+        //prevpos = new Vector2(pos);
+        pos.Sub(vec);
+        this.x = (int) pos.x;
+        this.y = (int) pos.y;
+        return this;
+    }
+
+    public Position2D swap() {
+        this.pos = new Vector2(prevpos);
         return this;
     }
 
@@ -89,14 +121,14 @@ public class Position2D {
         return getDistanceTo(point.x, point.y);
     }
 
-    public double getSqrDistanceTo(double x, double y){
+    public double getSqrDistanceTo(double x, double y) {
         double xx = pos.x - x;
         double yy = pos.y - y;
-        return xx*xx+yy*yy;
+        return xx * xx + yy * yy;
     }
 
-    public double getSqrDistanceTo(Position2D point){
+    public double getSqrDistanceTo(Position2D point) {
         return getSqrDistanceTo(point.x, point.y);
     }
 
-    }
+}

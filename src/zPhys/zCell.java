@@ -1,53 +1,81 @@
 package zPhys;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by es.zheludkov on 30.08.2017.
  */
 public class zCell {
-    private final Unit2D unit;
+    public int x, y;
+    public boolean isFreeze;
+    public HashSet<Unit2D> inner;
 
-    private ArrayList<zCell> neibor;
-    public zCell(int x,int y,double entropyFactor){
-        unit = new Unit2D(x,y,entropyFactor);
+    public zCell(int x, int y) {
+        inner = new HashSet<>();
+        this.x = x;
+        this.y = y;
     }
 
-    public zCell AddForce(Vector2 vec){
-        unit.AddForce(vec);
-        return this;
+    public void addUnit(Unit2D unit) {
+
+//        unit.position.SetXY(unit.position.prevpos.x,unit.position.prevpos.y);
+        //    Unit2D connectTo = null;
+        //      double mindist = Constraint.GLUEDIST;
+        boolean isUnconnected = true;
+        for (Unit2D u : inner) {
+//            double dist = unit.getDistanceTo(u);
+
+            if (unit.linked.get(u) != null) {
+                isUnconnected = false;
+                break;
+            }
+            //if(dist<mindist){mindist = dist; connectTo = u;                }
+            //if(dist<Constraint.GLUEDIST){unit.attach(u,false);break;}
+
+        }
+        if (isUnconnected) for (Unit2D u : inner) unit.attachField(u, 60, 0.00001);
+//if(isUnconnected)unit.attachField(connectTo,60,0.00001);
+        inner.add(unit);
+
+
     }
 
-    public zCell Move(){
-        unit.Move();
-        return this;
+    public void removeUnit(Unit2D unit) {
+        inner.remove(unit);
     }
 
+    public ArrayList<Unit2D> update(Vector2 bound) {
 
-    public static zCell calcPriorityCell(int x,int y, zCell cell1, zCell cell2){
-        if(cell1==null)return cell2;
-        if(cell2==null)return cell1;
-        Position2D currentPoint = new Position2D(x,y);
-        double r1,r2;
-        r1 = cell1.getSqrDistanceTo(currentPoint);
-        r2 = cell2.getSqrDistanceTo(currentPoint);
+        ArrayList<Unit2D> Removed = new ArrayList<>();
+        if (isFreeze) return Removed;//.addAll(inner.);
+        for (Unit2D unit : inner) {
+            unit.update(bound);
 
-        if(r1>r2)return cell2;
-        return cell1;
+            if (unit.position.getXi() != x || unit.position.getYi() != y) {
+                Removed.add(unit);
+                continue;
+            }
+
+        }
+
+        return Removed;
 
     }
 
-    public zCell Collider(zCell cell){
-
-
-      return this;
+    public void MouseClick(Position2D pos) {
+        double min = Double.MAX_VALUE;
+        Unit2D minUnit = null;
+        for (Unit2D unit : inner) {
+            //if(unit.isPinned)continue;
+            double dist = unit.getDistanceTo(pos);
+            if (dist < min) minUnit = unit;
+        }
+        if (minUnit != null) {
+            zField.taked = minUnit;
+            minUnit.MouseClick(pos);
+            minUnit.isPinned = Controll.isPinMode;
+        }
     }
 
-    public double getDistanceTo(Position2D point){
-        return unit.position.getDistanceTo(point);
-    }
-
-    public double getSqrDistanceTo(Position2D point){
-        return unit.position.getSqrDistanceTo(point);
-    }
 }
